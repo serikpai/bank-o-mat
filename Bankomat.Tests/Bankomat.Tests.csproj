@@ -7,9 +7,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="nunit" Version="3.12.0" />
-    <PackageReference Include="NUnit3TestAdapter" Version="3.15.1" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.4.0"/>
+    <PackageReference Include="FluentAssertions" Version="6.1.0" />
+    <PackageReference Include="nunit" Version="3.13.2" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.0.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Bankomat.Abstractions\Bankomat.Abstractions.csproj" />
+    <ProjectReference Include="..\Bankomat.Aggregating\Bankomat.Aggregating.csproj" />
+    <ProjectReference Include="..\Bankomat\Bankomat.csproj" />
+    <ProjectReference Include="..\DataStorage.InMemory\DataStorage.InMemory.csproj" />
   </ItemGroup>
 
 </Project>

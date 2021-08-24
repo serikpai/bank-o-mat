@@ -5,7 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Bankomat.Abstractions\Bankomat.Abstractions.csproj" />
     <ProjectReference Include="..\DataStorage.Abstractions\DataStorage.Abstractions.csproj" />
   </ItemGroup>
 
