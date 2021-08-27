@@ -9,17 +9,12 @@ namespace Bankomat.Abstractions.Exceptions
         {
         }
         
-        public UserNotExistsException(string username) : base(CreateMessage(username)) 
+        public UserNotExistsException(string message) : base(message) 
         {
         }
         
-        public UserNotExistsException(string username, Exception inner) : base(CreateMessage(username), inner) 
+        public UserNotExistsException(string message, Exception inner) : base(message, inner) 
         {
-        }
-        
-        private static string CreateMessage(string username)
-        {
-            return $"User '{username}' does not exist.";
         }
     }
 }

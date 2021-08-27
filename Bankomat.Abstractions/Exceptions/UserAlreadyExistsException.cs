@@ -9,17 +9,12 @@ namespace Bankomat.Abstractions.Exceptions
         {
         }
 
-        public UserAlreadyExistsException(string username) : base(CreateMessage(username)) 
+        public UserAlreadyExistsException(string message) : base(message) 
         { 
         }
         
-        public UserAlreadyExistsException(string username, Exception inner) : base(CreateMessage(username), inner)
+        public UserAlreadyExistsException(string message, Exception inner) : base(message, inner)
         {
-        }
-        
-        private static string CreateMessage(string username)
-        {
-            return $"User '{username}' already exists.";
         }
     }
 }

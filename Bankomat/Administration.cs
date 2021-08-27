@@ -9,6 +9,10 @@ namespace Bankomat
 {
     public class Administration
     {
+        private const string UserNameIsEmptyError = "Username must not be empty.";
+        private const string PinIsEmptyError = "PIN must not be empty.";
+        private const string DescriptionIsEmptyError = "Description must not be empty.";
+
         private readonly IUserRepository _users;
         private readonly IAccountRepository _accounts;
 
@@ -23,10 +27,9 @@ namespace Bankomat
 
         public void CreateUser(string username, string pin)
         {
-            if (DoesUserExist(username))
-            {
-                throw new UserAlreadyExistsException(username);
-            }
+            ThrowIfNullOrEmpty(username, UserNameIsEmptyError);
+            ThrowIfNullOrEmpty(pin, PinIsEmptyError);
+            ThrowIfUserAlreadyExist(username);
 
             var newUser = new User(username, pin);
             _users.Create(newUser);
@@ -34,10 +37,9 @@ namespace Bankomat
 
         public void CreateAccount(string username, string description)
         {
-            if (!DoesUserExist(username))
-            {
-                throw new UserNotExistsException(username);
-            }
+            ThrowIfNullOrEmpty(username, UserNameIsEmptyError);
+            ThrowIfNullOrEmpty(description, DescriptionIsEmptyError);
+            ThrowIfUserDoesNotExist(username);
 
             _accounts.Create(new Account(username, description));
         }
@@ -48,12 +50,34 @@ namespace Bankomat
 
         public IEnumerable<Account> GetAccountsForUser(string username)
         {
+            ThrowIfNullOrEmpty(username, UserNameIsEmptyError);
+            ThrowIfUserDoesNotExist(username);
+
+            return _accounts.GetAccountsForUser(username);
+        }
+
+        private void ThrowIfNullOrEmpty(string value, string message)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                throw new ArgumentException(message);
+            }
+        }
+
+        private void ThrowIfUserDoesNotExist(string username)
+        {
+            if (!DoesUserExist(username))
+            {
+                throw new UserNotExistsException($"User '{username}' does not exist.");
+            }
+        }
+
+        private void ThrowIfUserAlreadyExist(string username)
+        {
             if (DoesUserExist(username))
             {
-                return _accounts.GetAccountsForUser(username);
+                throw new UserAlreadyExistsException($"User '{username}' already exists.");
             }
-
-            throw new UserNotExistsException(username);
         }
     }
 }
