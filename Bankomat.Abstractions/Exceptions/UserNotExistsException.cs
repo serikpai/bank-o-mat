@@ -19,7 +19,7 @@ namespace Bankomat.Abstractions.Exceptions
         
         private static string CreateMessage(string username)
         {
-            return $"User '{username}' not exists.";
+            return $"User '{username}' does not exist.";
         }
     }
 }

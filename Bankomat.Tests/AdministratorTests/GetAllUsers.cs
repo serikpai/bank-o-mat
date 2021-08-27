@@ -11,8 +11,7 @@ namespace Bankomat.Tests.AdministratorTests
         [Test]
         public void GettingAllExistingUsersShouldReturnAllUsers()
         {
-            var userRepository = new InMemoryUserRepository();
-            var sut = new Administration(userRepository);
+            var sut = MockAggregator.NewAdministration();
 
             sut.CreateUser("susan", "12345");
             sut.CreateUser("peter", "23456");

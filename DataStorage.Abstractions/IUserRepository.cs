@@ -5,7 +5,7 @@ namespace DataStorage.Abstractions
 {
     public interface IUserRepository
     {
-        HashSet<User> GetAll();
+        IEnumerable<User> GetAll();
         void Create(User user);
     }
 }

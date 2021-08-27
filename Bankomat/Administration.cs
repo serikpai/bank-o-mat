@@ -10,13 +10,15 @@ namespace Bankomat
     public class Administration
     {
         private readonly IUserRepository _users;
+        private readonly IAccountRepository _accounts;
 
-        public Administration(IUserRepository userRepository)
+        public Administration(IUserRepository userRepository, IAccountRepository accountRepository)
         {
             _users = userRepository;
+            _accounts = accountRepository;
         }
 
-        public HashSet<User> GetAllUsers()
+        public IEnumerable<User> GetAllUsers()
             => _users.GetAll();
 
         public void CreateUser(string username, string pin)
@@ -36,10 +38,22 @@ namespace Bankomat
             {
                 throw new UserNotExistsException(username);
             }
+
+            _accounts.Create(new Account(username, description));
         }
 
         private bool DoesUserExist(string username)
             => GetAllUsers()
                 .Any(u => u.Username.Equals(username, StringComparison.OrdinalIgnoreCase));
+
+        public IEnumerable<Account> GetAccountsForUser(string username)
+        {
+            if (DoesUserExist(username))
+            {
+                return _accounts.GetAccountsForUser(username);
+            }
+
+            throw new UserNotExistsException(username);
+        }
     }
 }

@@ -12,22 +12,17 @@ namespace Domain
             Username = username;
             Pin = pin;
         }
+                
+        //private string ReverseCharacters(string input)
+        //{
+        //    string output = "";
 
-        public void Cipher()
-        {
-            Username = ReverseCharacters(Username);
-        }
+        //    foreach (var letter in input)
+        //    {
+        //        output += Convert.ToChar('z' - (letter - 'a'));
+        //    }
 
-        private string ReverseCharacters(string input)
-        {
-            string output = "";
-
-            foreach (var letter in input)
-            {
-                output += Convert.ToChar('z' - (letter - 'a'));
-            }
-
-            return output;
-        }
+        //    return output;
+        //}
     }
 }

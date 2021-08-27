@@ -14,7 +14,7 @@ namespace DataStorage.InMemory
             _dataStore.Add(user);
         }
 
-        public HashSet<User> GetAll()
+        public IEnumerable<User> GetAll()
         {
             return _dataStore;
         }

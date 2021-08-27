@@ -9,20 +9,12 @@ namespace Bankomat.Tests.AdministratorTests
     [TestFixture]
     public class CreateUser
     {
-        Administration _underTest;
-
-        [SetUp]
-        public void Setup()
-        {
-            var users = new InMemoryUserRepository();
-
-            _underTest = new Administration(users);
-        }
-
         [Test]
         public void CreatingTheFirstUserMustNotThrowAnyException()
         {
-            Action act = () => _underTest.CreateUser("john", "12345");
+            var sut = MockAggregator.NewAdministration();
+
+            Action act = () => sut.CreateUser("john", "12345");
 
             act.Should().NotThrow("there are no users there and we are not expecting any issues.");
         }
@@ -30,9 +22,10 @@ namespace Bankomat.Tests.AdministratorTests
         [Test]
         public void CreatingAnotherUserMustNotThrowAnyException()
         {
-            _underTest.CreateUser("john", "12345");
+            var sut = MockAggregator.NewAdministration();
+            sut.CreateUser("john", "12345");
 
-            Action act = () => _underTest.CreateUser("peter", "22222");
+            Action act = () => sut.CreateUser("peter", "22222");
 
             act.Should().NotThrow("there is no user with the same name.");
         }
@@ -40,9 +33,10 @@ namespace Bankomat.Tests.AdministratorTests
         [Test]
         public void CreatingUserWithTheSameUsernameMustThrowAnException()
         {
-            _underTest.CreateUser("john", "12345");
+            var sut = MockAggregator.NewAdministration();
+            sut.CreateUser("john", "12345");
 
-            Action act = () => _underTest.CreateUser("john", "11111");
+            Action act = () => sut.CreateUser("john", "11111");
 
             act.Should().Throw<UserAlreadyExistsException>("there is already an user with the same name");
         }
@@ -50,11 +44,12 @@ namespace Bankomat.Tests.AdministratorTests
         [Test]
         public void CreatingExistingUserAmongOtherUsersMustNotThrowAnyException()
         {
-            _underTest.CreateUser("susan", "12345");
-            _underTest.CreateUser("peter", "12345");
-            _underTest.CreateUser("john", "12345");
+            var sut = MockAggregator.NewAdministration();
+            sut.CreateUser("susan", "12345");
+            sut.CreateUser("peter", "12345");
+            sut.CreateUser("john", "12345");
 
-            Action act = () => _underTest.CreateUser("peter", "22222");
+            Action act = () => sut.CreateUser("peter", "22222");
 
             act.Should().Throw<UserAlreadyExistsException>("there is already an user with the same name");
         }
