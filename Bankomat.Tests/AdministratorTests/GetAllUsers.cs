@@ -12,6 +12,7 @@ namespace Bankomat.Tests.AdministratorTests
         public void GettingAllExistingUsersShouldReturnAllUsers()
         {
             var sut = MockAggregator.NewAdministration();
+            var hash = MockAggregator.NewHashComputer();
 
             sut.CreateUser("susan", "12345");
             sut.CreateUser("peter", "23456");
@@ -22,18 +23,21 @@ namespace Bankomat.Tests.AdministratorTests
             users.Should().SatisfyRespectively(
                 susan =>
                 {
+                    var pinHash = hash.Hashify("12345");
                     susan.Username.Should().Be("susan");
-                    susan.Pin.Should().Be("12345");
+                    susan.Pin.Should().Be(pinHash);
                 },
                 peter =>
                 {
+                    var pinHash = hash.Hashify("23456");
                     peter.Username.Should().Be("peter");
-                    peter.Pin.Should().Be("23456");
+                    peter.Pin.Should().Be(pinHash);
                 },
                 john =>
                 {
+                    var pinHash = hash.Hashify("34567");
                     john.Username.Should().Be("john");
-                    john.Pin.Should().Be("34567");
+                    john.Pin.Should().Be(pinHash);
                 });
 
         }

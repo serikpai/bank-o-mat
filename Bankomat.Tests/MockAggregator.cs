@@ -1,4 +1,6 @@
-﻿using DataStorage.InMemory;
+﻿using Cryptography;
+using Cryptography.Abstractions;
+using DataStorage.InMemory;
 
 namespace Bankomat.Tests
 {
@@ -8,8 +10,14 @@ namespace Bankomat.Tests
         {
             var users = new InMemoryUserRepository();
             var accounts = new InMemoryAccountRepository();
+            var hash = NewHashComputer();
 
-            return new Administration(users, accounts);
+            return new Administration(users, accounts, hash);
+        }
+        
+        public static IHashComputer NewHashComputer()
+        {
+            return new Md5HashComputer();
         }
     }
 }

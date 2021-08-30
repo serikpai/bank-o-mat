@@ -1,4 +1,5 @@
 ﻿using Bankomat.Abstractions.Exceptions;
+using Cryptography.Abstractions;
 using DataStorage.Abstractions;
 using Domain;
 using System;
@@ -7,7 +8,7 @@ using System.Linq;
 
 namespace Bankomat
 {
-    public class Administration
+    public class Administration : IAdministration
     {
         private const string UserNameIsEmptyError = "Username must not be empty.";
         private const string PinIsEmptyError = "PIN must not be empty.";
@@ -15,11 +16,13 @@ namespace Bankomat
 
         private readonly IUserRepository _users;
         private readonly IAccountRepository _accounts;
+        private readonly IHashComputer _hash;
 
-        public Administration(IUserRepository userRepository, IAccountRepository accountRepository)
+        public Administration(IUserRepository userRepository, IAccountRepository accountRepository, IHashComputer hash)
         {
             _users = userRepository;
             _accounts = accountRepository;
+            _hash = hash;
         }
 
         public IEnumerable<User> GetAllUsers()
@@ -31,7 +34,9 @@ namespace Bankomat
             ThrowIfNullOrEmpty(pin, PinIsEmptyError);
             ThrowIfUserAlreadyExist(username);
 
-            var newUser = new User(username, pin);
+            var encryptedPin = _hash.Hashify(pin);
+
+            var newUser = new User(username, encryptedPin);
             _users.Create(newUser);
         }
 

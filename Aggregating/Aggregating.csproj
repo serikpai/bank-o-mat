@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Bankomat.Abstractions\Bankomat.Abstractions.csproj" />
+    <ProjectReference Include="..\Bankomat\Bankomat.csproj" />
+    <ProjectReference Include="..\Cryptography\Cryptography.csproj" />
+    <ProjectReference Include="..\DataStorage.InMemory\DataStorage.InMemory.csproj" />
+  </ItemGroup>
+
+</Project>

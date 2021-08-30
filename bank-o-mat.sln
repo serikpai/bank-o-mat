@@ -3,21 +3,27 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29728.190
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bankomat.Ui", "Bankomat.Ui\Bankomat.Ui.csproj", "{53BF4FA8-4550-4829-8648-173118DB8AD6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bankomat.Ui", "Bankomat.Ui\Bankomat.Ui.csproj", "{53BF4FA8-4550-4829-8648-173118DB8AD6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bankomat.Abstractions", "Bankomat.Abstractions\Bankomat.Abstractions.csproj", "{B915E1DB-5E6E-4E79-8162-51366E86EA83}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bankomat.Abstractions", "Bankomat.Abstractions\Bankomat.Abstractions.csproj", "{B915E1DB-5E6E-4E79-8162-51366E86EA83}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bankomat", "Bankomat\Bankomat.csproj", "{962A5409-665E-4814-91D2-D7C185428C14}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bankomat", "Bankomat\Bankomat.csproj", "{962A5409-665E-4814-91D2-D7C185428C14}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bankomat.Aggregating", "Bankomat.Aggregating\Bankomat.Aggregating.csproj", "{4FEB5B66-ACA8-4B1C-B3D4-24851F286592}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aggregating", "Aggregating\Aggregating.csproj", "{4FEB5B66-ACA8-4B1C-B3D4-24851F286592}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bankomat.Tests", "Bankomat.Tests\Bankomat.Tests.csproj", "{A864FA53-A54B-49FA-A67B-F3C0345C3436}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bankomat.Tests", "Bankomat.Tests\Bankomat.Tests.csproj", "{A864FA53-A54B-49FA-A67B-F3C0345C3436}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataStorage.Abstractions", "DataStorage.Abstractions\DataStorage.Abstractions.csproj", "{1087E147-00CF-4D54-B81A-7C3B972B1848}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataStorage.Abstractions", "DataStorage.Abstractions\DataStorage.Abstractions.csproj", "{1087E147-00CF-4D54-B81A-7C3B972B1848}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataStorage.InMemory", "DataStorage.InMemory\DataStorage.InMemory.csproj", "{130543A7-3055-4BC7-B6C6-A553D5892D9E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataStorage.InMemory", "DataStorage.InMemory\DataStorage.InMemory.csproj", "{130543A7-3055-4BC7-B6C6-A553D5892D9E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "Domain\Domain.csproj", "{9AA5877D-CFEE-44CE-AF1C-36DCA56A11F2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Domain", "Domain\Domain.csproj", "{9AA5877D-CFEE-44CE-AF1C-36DCA56A11F2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cryptography.Abstractions", "Cryptography.Abstractions\Cryptography.Abstractions.csproj", "{B83B9EB9-42F8-404E-A532-A68DDB75543C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cryptography", "Cryptography\Cryptography.csproj", "{EF975197-BEFF-41C5-BFB3-7AF455952928}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cryptography.Tests", "Cryptography.Tests\Cryptography.Tests.csproj", "{3A943671-4F51-44BB-AABE-D44E05F23EB3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -57,6 +63,18 @@ Global
 		{9AA5877D-CFEE-44CE-AF1C-36DCA56A11F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9AA5877D-CFEE-44CE-AF1C-36DCA56A11F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9AA5877D-CFEE-44CE-AF1C-36DCA56A11F2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B83B9EB9-42F8-404E-A532-A68DDB75543C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B83B9EB9-42F8-404E-A532-A68DDB75543C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B83B9EB9-42F8-404E-A532-A68DDB75543C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B83B9EB9-42F8-404E-A532-A68DDB75543C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EF975197-BEFF-41C5-BFB3-7AF455952928}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EF975197-BEFF-41C5-BFB3-7AF455952928}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EF975197-BEFF-41C5-BFB3-7AF455952928}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EF975197-BEFF-41C5-BFB3-7AF455952928}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3A943671-4F51-44BB-AABE-D44E05F23EB3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A943671-4F51-44BB-AABE-D44E05F23EB3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A943671-4F51-44BB-AABE-D44E05F23EB3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A943671-4F51-44BB-AABE-D44E05F23EB3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
