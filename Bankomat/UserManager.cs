@@ -1,6 +1,7 @@
 ﻿using Bankomat.Abstractions.Exceptions;
 using Cryptography.Abstractions;
 using DataStorage.Abstractions;
+using Domain;
 using System;
 
 namespace Bankomat
@@ -18,19 +19,6 @@ namespace Bankomat
             _hash = hash;
         }
 
-        public void DepositMoney(int accountId, decimal value)
-        {
-            try
-            {
-                var account = _accounts.GetAccountById(accountId);
-                account.Deposit(value);
-            }
-            catch (InvalidOperationException ex)
-            {
-                throw new AccountNotExistsException($"account with id '{accountId}' could not be found", ex);
-            }
-        }
-
         public bool IsPinCorrect(string username, string pin)
         {
             if (!_users.DoesUserExist(username)) return false;
@@ -43,12 +31,31 @@ namespace Bankomat
             return isPinCorrect;
         }
 
-        public void WithdrawMoney(int accountId, decimal value)
+        public void DepositMoney(int accountId, decimal amount)
+        {
+            var account = GetAccountOrThrow(accountId);
+            account.Deposit(amount);
+        }
+
+        public void WithdrawMoney(int accountId, decimal amount)
+        {
+            var account = GetAccountOrThrow(accountId);
+            account.Withdraw(amount);
+        }
+
+        public void TransferMoney(int senderAccountId, int receiverAccountId, decimal amount)
+        {
+            var sender = GetAccountOrThrow(senderAccountId);
+            var receiver = GetAccountOrThrow(receiverAccountId);
+
+            sender.Transfer(amount, receiver);
+        }
+
+        private Account GetAccountOrThrow(int accountId)
         {
             try
             {
-                var account = _accounts.GetAccountById(accountId);
-                account.Withdraw(value);
+                return _accounts.GetAccountById(accountId);
             }
             catch (InvalidOperationException ex)
             {

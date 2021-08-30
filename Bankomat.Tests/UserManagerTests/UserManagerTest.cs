@@ -21,6 +21,7 @@ namespace Bankomat.Tests.UserManagerTests
             var admin = new Administration(users, _accounts, hash);
             admin.CreateUser("john", "12345");
             admin.CreateAccount("john", "Debit Card");
+            admin.CreateAccount("john", "Deposit account");
 
             _underTest = new UserManager(users, _accounts, hash);
         }

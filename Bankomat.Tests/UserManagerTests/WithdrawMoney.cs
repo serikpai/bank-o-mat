@@ -43,9 +43,7 @@ namespace Bankomat.Tests.UserManagerTests
         {
             _underTest.DepositMoney(1, 13.37m);
 
-            Action act = () => _underTest.WithdrawMoney(1, 1.44m);
-
-            act.Should().NotThrow();
+            _underTest.WithdrawMoney(1, 1.44m);
 
             var account = _accounts.GetAccountById(1);
             account.GetBalance().Should().Be(11.93m);

@@ -20,10 +20,8 @@ namespace Bankomat.Tests.UserManagerTests
         [Test]
         public void OnExistingAccountMustIncreaseTheBalance()
         {
-            Action act = () => _underTest.DepositMoney(1, 13.37m);
-
-            act.Should().NotThrow();
-
+            _underTest.DepositMoney(1, 13.37m);
+            
             var account = _accounts.GetAccountById(1);
             account.GetBalance().Should().Be(13.37m);
         }
