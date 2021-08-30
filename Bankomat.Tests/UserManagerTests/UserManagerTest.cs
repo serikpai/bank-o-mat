@@ -1,4 +1,5 @@
 ﻿using Cryptography;
+using DataStorage.Abstractions;
 using DataStorage.InMemory;
 using NUnit.Framework;
 
@@ -8,19 +9,20 @@ namespace Bankomat.Tests.UserManagerTests
     public abstract class UserManagerTest
     {
         protected UserManager _underTest;
+        protected IAccountRepository _accounts;
 
         [SetUp]
         public void Setup()
         {
-            var accounts = new InMemoryAccountRepository();
+            _accounts = new InMemoryAccountRepository();
             var users = new InMemoryUserRepository();
             var hash = new Md5HashComputer();
 
-            var admin = new Administration(users, accounts, hash);
+            var admin = new Administration(users, _accounts, hash);
             admin.CreateUser("john", "12345");
+            admin.CreateAccount("john", "Debit Card");
 
-
-            _underTest = new UserManager(users, accounts, hash);
+            _underTest = new UserManager(users, _accounts, hash);
         }
     }
 }

@@ -7,7 +7,7 @@ namespace DataStorage.InMemory
 {
     public class InMemoryAccountRepository : IAccountRepository
     {
-        private HashSet<Account> _dataStore = new HashSet<Account>();
+        private readonly HashSet<Account> _dataStore = new HashSet<Account>();
         private int _accountCount;
 
         public void Create(Account account)
@@ -16,9 +16,13 @@ namespace DataStorage.InMemory
             _dataStore.Add(account);
         }
 
-        public IEnumerable<Account> GetAccountsForUser(string username)
-        {
-            return _dataStore.Where(acc => acc.Username.Equals(username));
-        }
+        public Account GetAccountById(int id) 
+            => _dataStore.First(acc => acc.Id == id);
+
+        public IEnumerable<Account> GetAccountsByUserId(int userId) 
+            => _dataStore.Where(acc => acc.UserId == userId);
+
+        public IEnumerable<Account> GetAccountsByUserName(string username) 
+            => _dataStore.Where(acc => acc.Username.Equals(username));
     }
 }

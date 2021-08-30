@@ -59,7 +59,7 @@ namespace Bankomat
             ThrowIfNullOrEmpty(username, UserNameIsEmptyError);
             ThrowIfUserDoesNotExist(username);
 
-            return _accounts.GetAccountsForUser(username);
+            return _accounts.GetAccountsByUserName(username);
         }
 
         private void ThrowIfNullOrEmpty(string value, string message)
