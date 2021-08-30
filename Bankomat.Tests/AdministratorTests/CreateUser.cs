@@ -7,15 +7,13 @@ using System;
 namespace Bankomat.Tests.AdministratorTests
 {
     [TestFixture]
-    public class CreateUser
+    public class CreateUser : AdministratorTest
     {
         [TestCase("")]
         [TestCase(null)]
         public void CreatingUserWithInvalidUsernameMustThrowException(string username)
         {
-            var sut = MockAggregator.NewAdministration();
-
-            Action act = () => sut.CreateUser(username, "12345");
+            Action act = () => _underTest.CreateUser(username, "12345");
 
             act.Should().Throw<ArgumentException>("null or empty is not allowed for username or pin")
                 .WithMessage("Username must not be empty.");
@@ -25,9 +23,7 @@ namespace Bankomat.Tests.AdministratorTests
         [TestCase(null)]
         public void CreatingUserWithInvalidPinMustThrowException(string pin)
         {
-            var sut = MockAggregator.NewAdministration();
-
-            Action act = () => sut.CreateUser("john", pin);
+            Action act = () => _underTest.CreateUser("john", pin);
 
             act.Should().Throw<ArgumentException>("null or empty is not allowed for username or pin")
                 .WithMessage("PIN must not be empty.");
@@ -36,9 +32,7 @@ namespace Bankomat.Tests.AdministratorTests
         [Test]
         public void CreatingTheFirstUserMustNotThrowAnyException()
         {
-            var sut = MockAggregator.NewAdministration();
-
-            Action act = () => sut.CreateUser("john", "12345");
+            Action act = () => _underTest.CreateUser("john", "12345");
 
             act.Should().NotThrow("there are no users there and we are not expecting any issues.");
         }
@@ -46,10 +40,9 @@ namespace Bankomat.Tests.AdministratorTests
         [Test]
         public void CreatingAnotherUserMustNotThrowAnyException()
         {
-            var sut = MockAggregator.NewAdministration();
-            sut.CreateUser("john", "12345");
+            _underTest.CreateUser("john", "12345");
 
-            Action act = () => sut.CreateUser("peter", "22222");
+            Action act = () => _underTest.CreateUser("peter", "22222");
 
             act.Should().NotThrow("there is no user with the same name.");
         }
@@ -57,10 +50,9 @@ namespace Bankomat.Tests.AdministratorTests
         [Test]
         public void CreatingUserWithTheSameUsernameMustThrowAnException()
         {
-            var sut = MockAggregator.NewAdministration();
-            sut.CreateUser("john", "12345");
+            _underTest.CreateUser("john", "12345");
 
-            Action act = () => sut.CreateUser("john", "11111");
+            Action act = () => _underTest.CreateUser("john", "11111");
 
             act.Should().Throw<UserAlreadyExistsException>("there is already an user with the same name")
                 .WithMessage("User 'john' already exists.");
@@ -69,12 +61,11 @@ namespace Bankomat.Tests.AdministratorTests
         [Test]
         public void CreatingExistingUserAmongOtherUsersMustNotThrowAnyException()
         {
-            var sut = MockAggregator.NewAdministration();
-            sut.CreateUser("susan", "12345");
-            sut.CreateUser("peter", "12345");
-            sut.CreateUser("john", "12345");
+            _underTest.CreateUser("susan", "12345");
+            _underTest.CreateUser("peter", "12345");
+            _underTest.CreateUser("john", "12345");
 
-            Action act = () => sut.CreateUser("peter", "22222");
+            Action act = () => _underTest.CreateUser("peter", "22222");
 
             act.Should().Throw<UserAlreadyExistsException>("there is already an user with the same name")
                 .WithMessage("User 'peter' already exists.");

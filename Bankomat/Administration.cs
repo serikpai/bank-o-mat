@@ -46,12 +46,13 @@ namespace Bankomat
             ThrowIfNullOrEmpty(description, DescriptionIsEmptyError);
             ThrowIfUserDoesNotExist(username);
 
-            _accounts.Create(new Account(username, description));
+            var user = _users.GetByUsername(username);
+
+            var newAccount = new Account(user.Id, username, description);
+            _accounts.Create(newAccount);
         }
 
-        private bool DoesUserExist(string username)
-            => GetAllUsers()
-                .Any(u => u.Username.Equals(username, StringComparison.OrdinalIgnoreCase));
+
 
         public IEnumerable<Account> GetAccountsForUser(string username)
         {
@@ -71,7 +72,7 @@ namespace Bankomat
 
         private void ThrowIfUserDoesNotExist(string username)
         {
-            if (!DoesUserExist(username))
+            if (!_users.DoesUserExist(username))
             {
                 throw new UserNotExistsException($"User '{username}' does not exist.");
             }
@@ -79,7 +80,7 @@ namespace Bankomat
 
         private void ThrowIfUserAlreadyExist(string username)
         {
-            if (DoesUserExist(username))
+            if (_users.DoesUserExist(username))
             {
                 throw new UserAlreadyExistsException($"User '{username}' already exists.");
             }

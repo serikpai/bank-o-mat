@@ -1,5 +1,4 @@
 ﻿using Bankomat.Abstractions.Exceptions;
-using DataStorage.InMemory;
 using FluentAssertions;
 using NUnit.Framework;
 using System;
@@ -7,15 +6,13 @@ using System;
 namespace Bankomat.Tests.AdministratorTests
 {
     [TestFixture]
-    public class CreateAccount
+    public class CreateAccount : AdministratorTest
     {
         [TestCase("")]
         [TestCase(null)]
         public void CreatingUserWithInvalidUsernameMustThrowException(string username)
         {
-            var sut = MockAggregator.NewAdministration();
-
-            Action act = () => sut.CreateAccount(username, "credit card");
+            Action act = () => _underTest.CreateAccount(username, "credit card");
 
             act.Should().Throw<ArgumentException>("null or empty is not allowed for username or description")
                 .WithMessage("Username must not be empty.");
@@ -25,9 +22,7 @@ namespace Bankomat.Tests.AdministratorTests
         [TestCase(null)]
         public void CreatingUserWithInvalidDescriptionMustThrowException(string descr)
         {
-            var sut = MockAggregator.NewAdministration();
-
-            Action act = () => sut.CreateAccount("john", descr);
+            Action act = () => _underTest.CreateAccount("john", descr);
 
             act.Should().Throw<ArgumentException>("null or empty is not allowed for username or description")
                 .WithMessage("Description must not be empty.");
@@ -36,8 +31,7 @@ namespace Bankomat.Tests.AdministratorTests
         [Test]
         public void CreatingAccountForNotExistingUserMustThrowException()
         {
-            var sut = MockAggregator.NewAdministration();
-            Action act = () => sut.CreateAccount("john", "credit card");
+            Action act = () => _underTest.CreateAccount("john", "credit card");
 
             act.Should().Throw<UserNotExistsException>("there is no user with such a username")
                 .WithMessage("User 'john' does not exist.");
@@ -46,10 +40,9 @@ namespace Bankomat.Tests.AdministratorTests
         [Test]
         public void CreatingAccountForExistingUserMustNotThrowAnyException()
         {
-            var sut = MockAggregator.NewAdministration();
-            sut.CreateUser("john", "12345");
+            _underTest.CreateUser("john", "12345");
 
-            Action act = () => sut.CreateAccount("john", "credit card");
+            Action act = () => _underTest.CreateAccount("john", "credit card");
 
             act.Should().NotThrow();
         }

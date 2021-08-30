@@ -7,5 +7,7 @@ namespace DataStorage.Abstractions
     {
         IEnumerable<User> GetAll();
         void Create(User user);
+        User GetByUsername(string username);
+        bool DoesUserExist(string username);
     }
 }
