@@ -1,11 +1,13 @@
 ﻿using Bankomat.Aggregating;
 using System;
+using System.Linq;
 
 namespace Bankomat.Ui
 {
     class Program
     {
         private static IAdministration _admin;
+        private static Screen _screen = new Screen();
         static void Main(string[] args)
         {
 
@@ -26,29 +28,184 @@ namespace Bankomat.Ui
              *    4. display balance
              */
 
-            var userMode = GetUserMode();
-
-            if (userMode == 1)
+            do
             {
+                var userMode = GetUserMode();
+
+                if (userMode == 1)
+                {
+                    HandleAdminOperations();
+                }
+                else if (userMode == 255)
+                {
+                    break;
+                }
+
+
+            } while (true);
+
+
+            Console.WriteLine("Hello World!");
+        }
+
+        static void HandleAdminOperations()
+        {
+            do
+            {
+
                 var choise = GetAdminOption();
 
                 switch (choise)
                 {
                     case 1: CreateUser(); break;
+                    case 2: CreateAccount(); break;
+                    case 3: DeleteAccount(); break;
+                    case 4: PrintReports(); break;
+                    case 255: return;
+                    default: break;
+                }
 
-                    default:
-                        break;
+                Console.Read();
+            } while (true);
+        }
+
+
+
+        private static byte GetUserMode()
+        {
+            _screen.PrintBanner();
+
+            _screen.Headline("Main menu");
+
+            _screen.Text("LOGIN AS:");
+            _screen.Text(" 1) Administrator");
+            _screen.Text(" 2) User");
+            _screen.Text(" x) Exit");
+
+            _screen.HorizontalSeparator();
+
+            var read = Console.ReadKey();
+
+            if (read.Key == ConsoleKey.D1 || read.Key == ConsoleKey.NumPad1) return 1;
+            if (read.Key == ConsoleKey.D2 || read.Key == ConsoleKey.NumPad2) return 2;
+            if (read.Key == ConsoleKey.X) return 255;
+
+            return GetUserMode();
+        }
+
+        private static byte GetAdminOption()
+        {
+            _screen.PrintBanner();
+
+            _screen.Headline("Welcome Boss");
+            
+            _screen.Text("WHAT DO YOU WANT TO DO?:");
+            _screen.Text(" 1) Create user");
+            _screen.Text(" 2) Create account for user");
+            _screen.Text(" 3) Delete existing account");
+            _screen.Text(" 4) Show reports");
+            _screen.Text(" x) Exit");
+            _screen.HorizontalSeparator();
+
+            var read = Console.ReadKey();
+
+            if (read.Key == ConsoleKey.D1 || read.Key == ConsoleKey.NumPad1) return 1;
+            if (read.Key == ConsoleKey.D2 || read.Key == ConsoleKey.NumPad2) return 2;
+            if (read.Key == ConsoleKey.D3 || read.Key == ConsoleKey.NumPad3) return 3;
+            if (read.Key == ConsoleKey.D4 || read.Key == ConsoleKey.NumPad4) return 4;
+            if (read.Key == ConsoleKey.X) return 255;
+
+            return GetAdminOption();
+        }
+
+        private static void CreateUser()
+        {
+            _screen.PrintBanner();
+
+            _screen.Headline("Create user");
+            
+            var username = _screen.ReadUserInput("Username");
+            var pin = _screen.ReadUserInput("PIN");
+
+            try
+            {
+                _admin.CreateUser(username, pin);
+                _screen.LogInfo("User created!");
+            }
+            catch (Exception ex)
+            {
+                _screen.LogError(ex.Message);
+            }
+        }
+
+
+        private static void CreateAccount()
+        {
+            _screen.PrintBanner();
+            _screen.Headline("Create account");
+            
+            var username = _screen.ReadUserInput("Username");
+            var accountName = _screen.ReadUserInput("Name");
+
+            try
+            {
+                _admin.CreateAccount(username, accountName);
+                _screen.LogInfo("Account created!");
+            }
+            catch (Exception ex)
+            {
+                _screen.LogError(ex.Message);
+            }
+        }
+
+        private static void DeleteAccount()
+        {
+            _screen.PrintBanner();
+        }
+
+        private static void PrintReports()
+        {
+            _screen.PrintBanner();
+
+            _screen.Headline("Account repots");
+            _screen.EmpryLine();
+
+            var users = _admin.GetAllUsers();
+
+            Console.WriteLine($"| {"Description".PadRight(48)} | {"Balance".PadLeft(17)} | {"ID".PadLeft(5)} |");
+            foreach (var user in users)
+            {
+                _screen.HorizontalSeparator();
+                Console.WriteLine($"| ~> {user.Username.PadRight(63)} (ID: {user.Id.ToString().PadLeft(3)}) |");
+                _screen.HorizontalSeparator();
+
+                var accounts = _admin.GetAccountsForUser(user.Username);
+
+                if (!accounts.Any())
+                {
+                    _screen.Text("currently no accounts");
+                }
+
+                foreach (var account in accounts)
+                {
+                    Console.WriteLine($"| {account.Description.PadRight(48)} | {account.GetBalance().ToString("c").PadLeft(17)} | {account.Id.ToString().PadLeft(5)} |");
                 }
             }
 
-            Console.WriteLine("EXIT");
-
-            Console.ReadLine();
-
-            Console.WriteLine("Hello World!");
+            _screen.HorizontalSeparator();
         }
 
-        private static void PrintBanner()
+
+
+
+
+    }
+
+    class Screen
+    {
+        private const int ScreenWidth = 80;
+
+        public void PrintBanner()
         {
             Console.Clear();
 
@@ -65,74 +222,49 @@ namespace Bankomat.Ui
             Console.WriteLine(@"+------------------------------------------------------------------------------+");
         }
 
-        private static byte GetUserMode()
+        public void HorizontalSeparator()
         {
-            PrintBanner();
+            Console.WriteLine($"+{"".PadRight(ScreenWidth - 2, '-')}+");
+        }
+        public void EmpryLine()
+        {
+            Console.WriteLine($"+{"".PadRight(ScreenWidth - 2)}+");
+        }
+        public void Headline(string title)
+        {
+            var foo = (ScreenWidth - title.Length - 13) / 2;
 
-            Console.WriteLine(@"|          --- [[ M A I N   M E N U ]] ---                                     |");
-            Console.WriteLine(@"| LOGIN AS:                                                                    |");
-            Console.WriteLine(@"|  1) Administrator                                                            |");
-            Console.WriteLine(@"|  2) User                                                                     |");
-            Console.WriteLine(@"+------------------------------------------------------------------------------+");
+            var leftSpace = "".PadLeft(foo);
+            var rightSpace = "".PadRight(foo);
 
-            var read = Console.ReadKey();
-
-            if (read.Key == ConsoleKey.D1 || read.Key == ConsoleKey.NumPad1) return 1;
-            if (read.Key == ConsoleKey.D2 || read.Key == ConsoleKey.NumPad2) return 2;
-
-            return GetUserMode();
+            Console.WriteLine($"|{leftSpace} --[[ {title.ToUpper()} ]]-- {rightSpace}|");
         }
 
-        private static byte GetAdminOption()
+        public void Text(string text)
         {
-            PrintBanner();
-
-            Console.WriteLine(@"|          --- [[ W E L C O M E   B O S S ]] ---                               |");
-            Console.WriteLine(@"| WHAT DO YOU WANT TO DO?:                                                     |");
-            Console.WriteLine(@"|  1) Create user                                                              |");
-            Console.WriteLine(@"|  2) Create account for user                                                  |");
-            Console.WriteLine(@"|  3) Delete existing account                                                  |");
-            Console.WriteLine(@"|  4) Search for accounts                                                      |");
-            Console.WriteLine(@"|  5) View reports                                                             |");
-            Console.WriteLine(@"+------------------------------------------------------------------------------+");
-
-            var read = Console.ReadKey();
-
-            if (read.Key == ConsoleKey.D1 || read.Key == ConsoleKey.NumPad1) return 1;
-            if (read.Key == ConsoleKey.D2 || read.Key == ConsoleKey.NumPad2) return 2;
-            if (read.Key == ConsoleKey.D3 || read.Key == ConsoleKey.NumPad3) return 3;
-            if (read.Key == ConsoleKey.D4 || read.Key == ConsoleKey.NumPad4) return 4;
-            if (read.Key == ConsoleKey.D5 || read.Key == ConsoleKey.NumPad5) return 5;
-
-            return GetAdminOption();
+            Console.WriteLine($"| {text.PadRight(ScreenWidth - 4)} |");
         }
 
-        private static void CreateUser()
+        public void LogInfo(string message)
         {
-            PrintBanner();
-
-            Console.WriteLine(@"|          --- [[ C R E A T E   U S E R ]] ---                                 |");
-            Console.Write(@"|> Username : ");
-            var username = Console.ReadLine();
-            Console.Write(@"|> PIN      : ");
-            var pin = Console.ReadLine();
-
-            try
-            {
-                _admin.CreateUser(username, pin);
-                Console.WriteLine(@"+------------------------------------------------------------------------------+");
-                Console.WriteLine(@"|  User created !                                                              |");
-                Console.WriteLine(@"+------------------------------------------------------------------------------+");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"+------------------------------------------------------------------------------+");
-                Console.WriteLine($"|  ERROR: {ex.Message}                                                              |");
-                Console.WriteLine($"+------------------------------------------------------------------------------+");
-                
-            }
+            HorizontalSeparator();
+            Text(message);
+            HorizontalSeparator();
+        }
 
 
+        public void LogError(string message)
+        {
+            HorizontalSeparator();
+            Text("ERROR: " + message);
+            HorizontalSeparator();
+        }
+
+
+        public string ReadUserInput(string what)
+        {
+            Console.Write($"|> {what.PadRight(10)} : ");
+            return Console.ReadLine();
         }
     }
 }
