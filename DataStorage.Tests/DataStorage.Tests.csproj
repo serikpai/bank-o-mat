@@ -21,6 +21,7 @@
     <ProjectReference Include="..\DataStorage.FileSystem\DataStorage.FileSystem.csproj" />
     <ProjectReference Include="..\DataStorage.InMemory\DataStorage.InMemory.csproj" />
     <ProjectReference Include="..\DataStorage.Sqlite\DataStorage.Sqlite.csproj" />
+    <ProjectReference Include="..\StaticProxy.InMemory\StaticProxy.InMemory.csproj" />
   </ItemGroup>
 
 </Project>

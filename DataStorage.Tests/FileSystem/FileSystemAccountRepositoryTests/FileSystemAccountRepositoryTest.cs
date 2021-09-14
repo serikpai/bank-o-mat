@@ -3,6 +3,7 @@ using DataStorage.FileSystem;
 using Domain;
 using FluentAssertions;
 using NUnit.Framework;
+using StaticProxy.InMemory;
 using System;
 
 namespace DataStorage.Tests.FileSystem.FileSystemAccountRepositoryTests
@@ -11,11 +12,13 @@ namespace DataStorage.Tests.FileSystem.FileSystemAccountRepositoryTests
     public class FileSystemAccountRepositoryTest
     {
         protected FileSystemAccountRepository _repository;
+        protected InMemoryFileSystem _fileSystem;
 
         [SetUp]
         public void Setup()
         {
-            _repository = new FileSystemAccountRepository();
+            _fileSystem = new InMemoryFileSystem();
+            _repository = new FileSystemAccountRepository(_fileSystem);
         }
     }
 
@@ -30,6 +33,17 @@ namespace DataStorage.Tests.FileSystem.FileSystemAccountRepositoryTests
 
             newAccount.Id.Should().Be(1);
             _repository.AccountCount.Should().Be(1);
+
+            var fileContent = _fileSystem.ReadAllLines("1.account");
+            fileContent.Should().BeEquivalentTo(
+                "[account]",
+                "Id = 1",
+                "UserId = 1",
+                "UserName = john",
+                "Description = debit card",
+                "Balance = 0",
+                "IsFrozen = False"
+                );
         }
 
         [Test]
@@ -65,17 +79,112 @@ namespace DataStorage.Tests.FileSystem.FileSystemAccountRepositoryTests
         }
 
         [Test]
-        public void ExistingAccountMustBeReturned()
+        public void ExistingAccountBalanceWithCommaMustReturnTheAccount()
         {
-            var account = new Account(2, "john", "debit card");
-            _repository.Create(account);
+            _fileSystem.WriteAllLines("1.account", new string[]
+            {
+                $"[account]",
+                $"Id = 1",
+                $"UserId = 2",
+                $"UserName = susan storm",
+                $"Description = debit card",
+                $"Balance = 3,14",
+                $"IsFrozen = False"
+            });
 
             var output = _repository.GetAccountById(1);
 
             output.UserId.Should().Be(2);
             output.Id.Should().Be(1);
-            output.GetBalance().Should().Be(0);
+            output.GetBalance().Should().Be(3.14m);
+            output.Username.Should().Be("susan storm");
             output.Description.Should().Be("debit card");
+            output.IsFrozen().Should().BeFalse();
+        }
+
+        [Test]
+        public void ExistingAccountBalanceWithDotMustReturnTheAccount()
+        {
+            _fileSystem.WriteAllLines("1.account", new string[]
+            {
+                $"[account]",
+                $"Id = 1",
+                $"UserId = 2",
+                $"UserName = john doe",
+                $"Description = debit card",
+                $"Balance = 3.14",
+                $"IsFrozen = True"
+            });
+
+            var output = _repository.GetAccountById(1);
+
+            output.UserId.Should().Be(2);
+            output.Id.Should().Be(1);
+            output.GetBalance().Should().Be(3.14m);
+            output.Username.Should().Be("john doe");
+            output.Description.Should().Be("debit card");
+            output.IsFrozen().Should().BeTrue();
+        }
+
+        [Test]
+        public void UserIdWithWrongFormatMustThrowException()
+        {
+            _fileSystem.WriteAllLines("1.account", new string[]
+            {
+                $"[account]",
+                $"UserId = two",
+            });
+
+            Action act = () => _repository.GetAccountById(1);
+
+            act.Should().ThrowExactly<InjuredAccountException>()
+                .WithMessage("Could not read 'UserId' with value 'two' within file '1.account'.");
+        }
+
+        [Test]
+        public void BalanceWithWrongFormatMustThrowException()
+        {
+            _fileSystem.WriteAllLines("1.account", new string[]
+            {
+                $"[account]",
+                $"Balance = none",
+            });
+
+            Action act = () => _repository.GetAccountById(1);
+
+            act.Should().ThrowExactly<InjuredAccountException>()
+                .WithMessage("Could not read 'Balance' with value 'none' within file '1.account'.");
+        }
+
+        [Test]
+        public void IdWithWrongFormatMustThrowException()
+        {
+            _fileSystem.WriteAllLines("1.account", new string[]
+            {
+                $"[account]",
+                $"Id = one",
+            });
+
+            Action act = () => _repository.GetAccountById(1);
+
+            act.Should().ThrowExactly<InjuredAccountException>()
+                .WithMessage("Could not read 'Id' with value 'one' within file '1.account'.");
+        }
+
+
+        [Test]
+        public void FrozenWithWrongFormatMustThrowException()
+        {
+            _fileSystem.WriteAllLines("1.account", new string[]
+            {
+                $"[account]",
+                $"IsFrozen = no",
+            });
+
+            Action act = () => _repository.GetAccountById(1);
+
+            act.Should().ThrowExactly<InjuredAccountException>()
+                .WithMessage("Could not read 'IsFrozen' with value 'no' within file '1.account'.");
         }
     }
 
@@ -128,6 +237,7 @@ namespace DataStorage.Tests.FileSystem.FileSystemAccountRepositoryTests
                     debit.Description.Should().Be("debit card");
                 });
         }
+
         [Test]
         public void MultipleAccountsForSomeUsersMustOnlyReturnTheAccountOfOneUser()
         {

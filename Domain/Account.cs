@@ -6,6 +6,7 @@ namespace Domain
     public class Account
     {
         private decimal _balance;
+        private bool _isFrozen;
 
         public Account(int userId, string username, string description)
         {
@@ -20,6 +21,10 @@ namespace Domain
         public string Description { get; private set; }
 
         public decimal GetBalance() => _balance;
+        public bool IsFrozen() => _isFrozen;
+
+        public void Freeze() => _isFrozen = true;
+
 
         public void Deposit(decimal amount)
         {
