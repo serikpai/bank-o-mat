@@ -8,6 +8,8 @@ namespace DataStorage.FileSystem
 {
     public class FileSystemAccountRepository : IAccountRepository
     {
+        public int AccountCount { get; set; }
+
         public void Create(Account account)
         {
             throw new NotImplementedException();
