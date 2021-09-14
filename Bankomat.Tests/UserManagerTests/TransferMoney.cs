@@ -16,7 +16,7 @@ namespace Bankomat.Tests.UserManagerTests
             Action act = () => _underTest.TransferMoney(42, 2, 10);
 
             act.Should().Throw<AccountNotExistsException>()
-                .WithMessage("account with id '42' could not be found");
+                .WithMessage("Account with ID '42' does not exists.");
         }
 
         [Test]
@@ -25,7 +25,7 @@ namespace Bankomat.Tests.UserManagerTests
             Action act = () => _underTest.TransferMoney(1, 42, 10);
 
             act.Should().Throw<AccountNotExistsException>()
-                .WithMessage("account with id '42' could not be found");
+                .WithMessage("Account with ID '42' does not exists.");
         }
 
         [Test]

@@ -1,6 +1,7 @@
 ﻿using Bankomat.Abstractions.Exceptions;
 using Cryptography.Abstractions;
 using DataStorage.Abstractions;
+using DataStorage.Abstractions.Exceptions;
 using Domain;
 using System;
 
@@ -57,9 +58,9 @@ namespace Bankomat
             {
                 return _accounts.GetAccountById(accountId);
             }
-            catch (InvalidOperationException ex)
+            catch (AccountIdNotFoundException ex)
             {
-                throw new AccountNotExistsException($"account with id '{accountId}' could not be found", ex);
+                throw new AccountNotExistsException($"Account with ID '{accountId}' does not exists.", ex);
             }
         }
     }
