@@ -8,11 +8,11 @@ namespace DataStorage.InMemory
     public class InMemoryAccountRepository : IAccountRepository
     {
         private readonly HashSet<Account> _dataStore = new HashSet<Account>();
-        private int _accountCount;
+        public int AccountCount { get; private set; }
 
         public void Create(Account account)
         {
-            account.Id = ++_accountCount;
+            account.Id = ++AccountCount;
             _dataStore.Add(account);
         }
 
