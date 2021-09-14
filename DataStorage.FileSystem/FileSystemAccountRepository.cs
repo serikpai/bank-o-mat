@@ -5,13 +5,34 @@ using StaticProxy.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 
 namespace DataStorage.FileSystem
 {
+    internal struct LineContent
+    {
+        public string Identifier { get; set; }
+        public string Value { get; set; }
+
+        public LineContent(string key, string value)
+        {
+            Identifier = key;
+            Value = value;
+        }
+
+        public string AsString()
+        {
+            return $"{Identifier} = {Value}";
+        }
+    }
+
     public class FileSystemAccountRepository : IAccountRepository
     {
+        public string DefaultFileExtension = "account";
         private readonly IFileSystem _fileSystem;
+        private Account _account;
+        private string _filename;
 
         public int AccountCount { get; set; }
 
@@ -22,156 +43,215 @@ namespace DataStorage.FileSystem
 
         public void Create(Account account)
         {
-            if (account.UserId <= 0)
+            _account = account;
+
+            EnsureAccountIsAssignedToUserAndHasNoBalance();
+            GenerateNewIdForTheAccount();
+            ConvertAccountIntoStringArrayAndSaveItToSpecificFile();
+        }
+
+
+        private void EnsureAccountIsAssignedToUserAndHasNoBalance()
+        {
+            if (_account.UserId <= 0)
+            {
                 throw new AccountIdMustNotBeZeroException();
+            }
 
-            var currentBalance = account.GetBalance();
+            var currentBalance = _account.GetBalance();
             if (currentBalance != 0)
+            {
                 throw new BalanceMustBeZeroDuringCreationException();
+            }
+        }
 
-            account.Id = ++AccountCount;
+        private void GenerateNewIdForTheAccount()
+        {
+            _account.Id = ++AccountCount;
+        }
 
+        private void ConvertAccountIntoStringArrayAndSaveItToSpecificFile()
+        {
             var fileContent = new string[]
             {
                 $"[account]",
-                $"Id = {account.Id}",
-                $"UserId = {account.UserId}",
-                $"UserName = {account.Username}",
-                $"Description = {account.Description}",
+                $"Id = {_account.Id}",
+                $"UserId = {_account.UserId}",
+                $"UserName = {_account.Username}",
+                $"Description = {_account.Description}",
                 $"Balance = 0",
-                $"IsFrozen = {account.IsFrozen()}",
+                $"IsFrozen = {_account.IsFrozen()}",
             };
 
-            _fileSystem.WriteAllLines($"{account.Id}.account", fileContent);
+            var fileNameForCurrentAccount = GetFileNameByAccountId(_account.Id);
+            _fileSystem.WriteAllLines(fileNameForCurrentAccount, fileContent);
+        }
+
+        private string GetFileNameByAccountId(int id)
+        {
+            return $"{id}.{DefaultFileExtension}";
         }
 
         public Account GetAccountById(int id)
         {
-            var accountFileName = $"{id}.account";
-            if (!_fileSystem.Exists(accountFileName))
-            {
-                throw new AccountIdNotFoundException();
-            }
+            var accountFileName = GetFileNameByAccountId(id);
+
+            EnsureAccountFileExists(accountFileName);
 
             return ReadWithinFile(accountFileName);
         }
 
+        private void EnsureAccountFileExists(string accountFileName)
+        {
+            if (!_fileSystem.Exists(accountFileName))
+            {
+                throw new AccountIdNotFoundException();
+            }
+        }
+        LineContent[] fileContent;
         private Account ReadWithinFile(string filename)
         {
-            var fileContent = _fileSystem.ReadAllLines(filename);
-            var userId = 0;
-            var accountId = 0;
-            var username = string.Empty;
-            var description = string.Empty;
-            var balance = 0m;
-            var isFrozen = false;
+            _filename = filename;
 
-            foreach (var line in fileContent)
-            {
-                var lineTuple = line.Split('=');
-                var key = lineTuple[0].Trim();
-                var value = lineTuple.Length > 1 ? lineTuple[1].Trim() : "";
+            fileContent = ReadAccountDocumentAndProvideRawData();
 
-                switch (key)
-                {
-                    case "UserId":
-                        try
-                        {
-                            userId = Convert.ToInt32(value);
-                            break;
-                        }
-                        catch (FormatException ex)
-                        {
-                            throw new InjuredAccountException($"Could not read 'UserId' with value '{value}' within file '{filename}'.",ex);
-                        }
-                        
-                    case "Id":
-                        try
-                        {
-                            accountId = Convert.ToInt32(value);
-                            break;
-                        }
-                        catch (FormatException ex)
-                        {
+            var userId = GetNumericValueForSpecificIdentifier("UserId");
+            var accountId = GetNumericValueForSpecificIdentifier("Id");
 
-                            throw new InjuredAccountException($"Could not read 'Id' with value '{value}' within file '{filename}'.", ex);
-                        }
-                        
-                    case "UserName": username = Convert.ToString(value); break;
-                    case "Description": description = Convert.ToString(value); break;
-                    case "Balance":
-                        try
-                        {
-                            balance = Convert.ToDecimal(value.Replace(',','.'), CultureInfo.InvariantCulture);
-                            break;
-                        }
-                        catch (FormatException ex)
-                        {
-                            throw new InjuredAccountException($"Could not read 'Balance' with value '{value}' within file '{filename}'.", ex);
-                        }
-                    case "IsFrozen":
-                        try
-                        {
-                            isFrozen = Convert.ToBoolean(value); break;
-                        }
-                        catch (FormatException ex)
-                        {
-                            throw new InjuredAccountException($"Could not read 'IsFrozen' with value '{value}' within file '{filename}'.", ex);
-                        }
-                        
-                    default:
-                        break;
-                }
-            }
+            var username = GetStringValueForSpecificIdentifier("UserName");
+            var description = GetStringValueForSpecificIdentifier("Description");
+            var balance = GetDecimalValueForSpecificIdentifier("Balance");
+            var isFrozen = GetBooleanValueForSpecificIdentifier("IsFrozen");
 
             var account = new Account(userId, username, description);
             account.Id = accountId;
             account.Deposit(balance);
 
-            if (isFrozen) account.Freeze();
+            if (isFrozen)
+            {
+                account.Freeze();
+            }
 
             return account;
         }
 
-        public IEnumerable<Account> GetAccountsByUserId(int userId)
+        private LineContent[] ReadAccountDocumentAndProvideRawData()
         {
-            var files = _fileSystem.GetFiles(".\\");
-            var output = new List<Account>();
+            var fileContent = _fileSystem.ReadAllLines(_filename);
+            var output = new List<LineContent>();
 
-            foreach (var file in files)
+            foreach (var line in fileContent)
             {
-                if (!file.EndsWith("account"))
+                var lineTuple = line.Split('=');
+
+                if (lineTuple.Length != 2)
                 {
                     continue;
                 }
 
-                var account = ReadWithinFile(file);
+                var key = lineTuple[0].Trim();
+                var value = lineTuple[1].Trim();
+                var lineContent = new LineContent(key, value);
 
-                if (account.UserId == userId)
-
-                    output.Add(account);
+                output.Add(lineContent);
             }
 
-            return output;
+            return output.ToArray();
+        }
+
+        private LineContent FindEntryForRequestedIdentifierWithinTheSourceFile(string key)
+        {
+            try
+            {
+                return fileContent.Single(x => x.Identifier.Equals(key));
+            }
+            catch (InvalidOperationException ex)
+            {
+                throw new InjuredAccountException($"Could not read '{key}' because it was not found within file '{_filename}'.", ex);
+            }
+        }
+
+        private int GetNumericValueForSpecificIdentifier(string key)
+        {
+            var line = FindEntryForRequestedIdentifierWithinTheSourceFile(key);
+
+            try
+            {
+                return Convert.ToInt32(line.Value);
+            }
+            catch (FormatException ex)
+            {
+                throw GetInjuredAccountExceptionForInvalidFormats(line, ex);
+            }
+        }
+
+        private decimal GetDecimalValueForSpecificIdentifier(string key)
+        {
+            var line = FindEntryForRequestedIdentifierWithinTheSourceFile(key);
+
+            try
+            {
+                return Convert.ToDecimal(line.Value.Replace(',', '.'), CultureInfo.InvariantCulture);
+            }
+            catch (FormatException ex)
+            {
+                throw GetInjuredAccountExceptionForInvalidFormats(line, ex);
+            }
+        }
+
+        private bool GetBooleanValueForSpecificIdentifier(string key)
+        {
+            var line = FindEntryForRequestedIdentifierWithinTheSourceFile(key);
+
+            try
+            {
+                return Convert.ToBoolean(line.Value);
+            }
+            catch (FormatException ex)
+            {
+                throw GetInjuredAccountExceptionForInvalidFormats(line, ex);
+            }
+        }
+
+        private string GetStringValueForSpecificIdentifier(string key)
+        {
+            var line = FindEntryForRequestedIdentifierWithinTheSourceFile(key);
+
+            return line.Value;
+        }
+
+
+        private Exception GetInjuredAccountExceptionForInvalidFormats(LineContent line, FormatException ex)
+        {
+            throw new InjuredAccountException($"Could not read '{line.Identifier}' with value '{line.Value}' within file '{_filename}'.", ex);
+        }
+
+        public IEnumerable<Account> GetAccountsByUserId(int userId)
+        {
+            return GetAll()
+                .Where(acc => acc.UserId == userId);
         }
 
         public IEnumerable<Account> GetAccountsByUserName(string username)
         {
+            return GetAll()
+                .Where(acc => acc.Username.Equals(username, StringComparison.OrdinalIgnoreCase));
+        }
+
+        private IEnumerable<Account> GetAll()
+        {
             var files = _fileSystem.GetFiles(".\\");
             var output = new List<Account>();
 
             foreach (var file in files)
             {
-                if (!file.EndsWith("account"))
+                if (!file.EndsWith(DefaultFileExtension))
                 {
                     continue;
                 }
 
                 var account = ReadWithinFile(file);
-
-                if (account.Username.Equals(username, StringComparison.OrdinalIgnoreCase))
-
-                    output.Add(account);
+                output.Add(account);
             }
 
             return output;

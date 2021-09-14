@@ -147,6 +147,10 @@ namespace DataStorage.Tests.FileSystem.FileSystemAccountRepositoryTests
             _fileSystem.WriteAllLines("1.account", new string[]
             {
                 $"[account]",
+                $"UserName = john doe",
+                $"Description = debit card",
+                $"Id = 1",
+                $"UserId = 2",
                 $"Balance = none",
             });
 
@@ -163,6 +167,9 @@ namespace DataStorage.Tests.FileSystem.FileSystemAccountRepositoryTests
             {
                 $"[account]",
                 $"Id = one",
+                $"UserId = 2",
+                $"UserName = john doe",
+                $"Description = debit card",
             });
 
             Action act = () => _repository.GetAccountById(1);
@@ -178,7 +185,12 @@ namespace DataStorage.Tests.FileSystem.FileSystemAccountRepositoryTests
             _fileSystem.WriteAllLines("1.account", new string[]
             {
                 $"[account]",
+                $"UserName = john doe",
+                $"Description = debit card",
+                $"Id = 1",
+                $"UserId = 2",
                 $"IsFrozen = no",
+                $"Balance = 0",
             });
 
             Action act = () => _repository.GetAccountById(1);
